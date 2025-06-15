@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Procedural Maze Generator</title>
+    <link rel="stylesheet" href="/src/ui/styles/main.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Procedural Maze Generator</h1>
+        <div class="controls">
+          <div class="control-group">
+            <label for="maze-size">Maze Size:</label>
+            <input type="range" id="maze-size" min="10" max="50" value="20" />
+            <span id="size-value">20x20</span>
+          </div>
+          <div class="control-group">
+            <label for="algorithm">Algorithm:</label>
+            <select id="algorithm">
+              <option value="dfs">Depth-First Search</option>
+              <option value="prim">Prim's Algorithm</option>
+              <option value="kruskal">Kruskal's Algorithm</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="speed">Generation Speed:</label>
+            <input type="range" id="speed" min="1" max="10" value="5" />
+          </div>
+          <button id="generate">Generate Maze</button>
+          <button id="solve">Solve Maze</button>
+        </div>
+      </header>
+      <main>
+        <canvas id="maze-canvas"></canvas>
+      </main>
+      <div class="stats">
+        <div class="stat-group">
+          <span>Generation Time:</span>
+          <span id="gen-time">0ms</span>
+        </div>
+        <div class="stat-group">
+          <span>Path Length:</span>
+          <span id="path-length">0</span>
+        </div>
+        <div class="stat-group">
+          <span>Nodes Explored:</span>
+          <span id="nodes-explored">0</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html> 
