@@ -8,8 +8,11 @@ export class MazeGenerator {
   private stack: Cell[] = [];
   private visited: Set<Cell> = new Set();
   private generationSpeed: number = 1;
+  private isTestMode: boolean = false;
 
-  constructor() {}
+  constructor(isTestMode: boolean = false) {
+    this.isTestMode = isTestMode;
+  }
 
   public async generate(size: number, algorithm: string, speed: number): Promise<Cell[][]> {
     this.size = size;
@@ -216,9 +219,10 @@ export class MazeGenerator {
     }
   }
 
-  private delay(): Promise<void> {
-    return new Promise(resolve => {
-      setTimeout(resolve, 100 / this.generationSpeed);
-    });
+  private async delay(): Promise<void> {
+    if (this.isTestMode) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => setTimeout(resolve, 1000 / this.generationSpeed));
   }
 } 

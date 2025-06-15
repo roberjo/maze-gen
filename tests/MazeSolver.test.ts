@@ -8,7 +8,7 @@ describe('MazeSolver', () => {
 
   beforeEach(() => {
     solver = new MazeSolver();
-    generator = new MazeGenerator();
+    generator = new MazeGenerator(true);
   });
 
   test('should find a path in a simple maze', async () => {

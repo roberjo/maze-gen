@@ -5,7 +5,7 @@ describe('MazeGenerator', () => {
   let generator: MazeGenerator;
 
   beforeEach(() => {
-    generator = new MazeGenerator();
+    generator = new MazeGenerator(true); // Enable test mode
   });
 
   test('should generate a maze with correct dimensions', async () => {
