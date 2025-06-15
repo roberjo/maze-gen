@@ -3,11 +3,16 @@ import { Cell } from '../core/Cell';
 export class MazeSolver {
   private nodesExplored: number = 0;
   private solvingSpeed: number = 1;
+  private totalCells: number = 0;
+  private processedCells: number = 0;
 
   constructor() {}
 
-  public async solve(maze: Cell[][]): Promise<Cell[]> {
+  public async solve(maze: Cell[][], onProgress?: (progress: number) => void): Promise<Cell[]> {
     this.nodesExplored = 0;
+    this.totalCells = maze.length * maze[0].length;
+    this.processedCells = 0;
+
     const start = this.findStart(maze);
     const end = this.findEnd(maze);
     
@@ -23,7 +28,7 @@ export class MazeSolver {
     }
 
     // Use A* algorithm
-    const solution = await this.aStar(maze, start, end);
+    const solution = await this.aStar(maze, start, end, onProgress);
     
     // Mark solution path
     if (solution) {
@@ -68,7 +73,12 @@ export class MazeSolver {
     return null;
   }
 
-  private async aStar(maze: Cell[][], start: Cell, end: Cell): Promise<Cell[]> {
+  private async aStar(
+    maze: Cell[][],
+    start: Cell,
+    end: Cell,
+    onProgress?: (progress: number) => void
+  ): Promise<Cell[]> {
     const openSet: Cell[] = [start];
     const closedSet: Set<Cell> = new Set();
     
@@ -89,6 +99,7 @@ export class MazeSolver {
       closedSet.add(current);
       current.isVisited = true;
       this.nodesExplored++;
+      this.updateProgress(onProgress);
 
       // Check neighbors
       for (const neighbor of current.getNeighbors(maze)) {
@@ -137,6 +148,14 @@ export class MazeSolver {
     }
 
     return path;
+  }
+
+  private updateProgress(onProgress?: (progress: number) => void): void {
+    if (onProgress) {
+      this.processedCells++;
+      const progress = Math.round((this.processedCells / this.totalCells) * 100);
+      onProgress(progress);
+    }
   }
 
   private delay(): Promise<void> {

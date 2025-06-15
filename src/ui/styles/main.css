@@ -1,4 +1,5 @@
 :root {
+  /* Dark theme (default) */
   --primary-color: #2c3e50;
   --secondary-color: #3498db;
   --background-color: #1a1a1a;
@@ -6,6 +7,16 @@
   --control-bg: #2c3e50;
   --control-hover: #34495e;
   --border-color: #34495e;
+}
+
+[data-theme="light"] {
+  --primary-color: #2c3e50;
+  --secondary-color: #2980b9;
+  --background-color: #ffffff;
+  --text-color: #2c3e50;
+  --control-bg: #f5f6fa;
+  --control-hover: #e8e9f0;
+  --border-color: #dcdde1;
 }
 
 * {
@@ -19,6 +30,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 #app {
@@ -48,6 +60,7 @@ h1 {
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
 }
 
 .control-group {
@@ -58,6 +71,7 @@ h1 {
 
 label {
   font-weight: 500;
+  white-space: nowrap;
 }
 
 input[type="range"] {
@@ -67,6 +81,7 @@ input[type="range"] {
   height: 6px;
   outline: none;
   -webkit-appearance: none;
+  transition: background-color 0.3s;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -76,6 +91,14 @@ input[type="range"]::-webkit-slider-thumb {
   background-color: var(--secondary-color);
   border-radius: 50%;
   cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--secondary-color);
 }
 
 select {
@@ -85,6 +108,7 @@ select {
   padding: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 button {
@@ -99,7 +123,12 @@ button {
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: var(--control-hover);
+}
+
+button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
 }
 
 main {
@@ -115,6 +144,7 @@ main {
   border: 2px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .stats {
@@ -125,6 +155,7 @@ main {
   background-color: var(--control-bg);
   border-radius: 8px;
   margin-top: 2rem;
+  transition: background-color 0.3s;
 }
 
 .stat-group {
@@ -136,6 +167,41 @@ main {
 .stat-group span:first-child {
   font-weight: 500;
   color: var(--secondary-color);
+}
+
+.message {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+}
+
+.message.info {
+  background-color: var(--secondary-color);
+}
+
+.message.error {
+  background-color: #e74c3c;
+}
+
+.message.success {
+  background-color: #2ecc71;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 768px) {
@@ -157,4 +223,52 @@ main {
     align-items: center;
     gap: 1rem;
   }
+}
+
+.progress-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--control-bg);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
+  min-width: 300px;
+  transition: opacity 0.3s;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--background-color);
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.progress-bar::-webkit-progress-bar {
+  background-color: var(--background-color);
+}
+
+.progress-bar::-webkit-progress-value {
+  background-color: var(--secondary-color);
+  transition: width 0.3s ease;
+}
+
+.progress-bar::-moz-progress-bar {
+  background-color: var(--secondary-color);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: var(--text-color);
+  font-weight: 500;
+  text-align: center;
 } 

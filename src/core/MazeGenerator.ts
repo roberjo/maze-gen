@@ -9,28 +9,37 @@ export class MazeGenerator {
   private visited: Set<Cell> = new Set();
   private generationSpeed: number = 1;
   private isTestMode: boolean = false;
+  private totalCells: number = 0;
+  private processedCells: number = 0;
 
   constructor(isTestMode: boolean = false) {
     this.isTestMode = isTestMode;
   }
 
-  public async generate(size: number, algorithm: string, speed: number): Promise<Cell[][]> {
+  public async generate(
+    size: number,
+    algorithm: string,
+    speed: number,
+    onProgress?: (progress: number) => void
+  ): Promise<Cell[][]> {
     this.size = size;
     this.generationSpeed = speed;
     this.initializeMaze();
+    this.totalCells = size * size;
+    this.processedCells = 0;
 
     switch (algorithm) {
       case 'dfs':
-        await this.generateDFS();
+        await this.generateDFS(onProgress);
         break;
       case 'prim':
-        await this.generatePrim();
+        await this.generatePrim(onProgress);
         break;
       case 'kruskal':
-        await this.generateKruskal();
+        await this.generateKruskal(onProgress);
         break;
       default:
-        await this.generateDFS();
+        await this.generateDFS(onProgress);
     }
 
     return this.maze;
@@ -59,11 +68,12 @@ export class MazeGenerator {
     this.maze[this.size - 1][this.size - 1].isEnd = true;
   }
 
-  private async generateDFS(): Promise<void> {
+  private async generateDFS(onProgress?: (progress: number) => void): Promise<void> {
     const startCell = this.maze[0][0];
     this.currentCell = startCell;
     this.visited.add(startCell);
     this.stack.push(startCell);
+    this.updateProgress(onProgress);
 
     while (this.stack.length > 0) {
       this.currentCell = this.stack[this.stack.length - 1];
@@ -74,6 +84,7 @@ export class MazeGenerator {
         this.removeWallsBetween(this.currentCell, nextCell);
         this.visited.add(nextCell);
         this.stack.push(nextCell);
+        this.updateProgress(onProgress);
       } else {
         this.stack.pop();
       }
@@ -82,10 +93,11 @@ export class MazeGenerator {
     }
   }
 
-  private async generatePrim(): Promise<void> {
+  private async generatePrim(onProgress?: (progress: number) => void): Promise<void> {
     const startCell = this.maze[0][0];
     this.visited.add(startCell);
     const walls = this.getWalls(startCell);
+    this.updateProgress(onProgress);
 
     while (walls.length > 0) {
       const randomWall = walls[Math.floor(Math.random() * walls.length)];
@@ -96,6 +108,7 @@ export class MazeGenerator {
         const unvisitedCell = this.visited.has(cell1) ? cell2 : cell1;
         this.visited.add(unvisitedCell);
         walls.push(...this.getWalls(unvisitedCell));
+        this.updateProgress(onProgress);
       }
 
       const wallIndex = walls.indexOf(randomWall);
@@ -105,7 +118,7 @@ export class MazeGenerator {
     }
   }
 
-  private async generateKruskal(): Promise<void> {
+  private async generateKruskal(onProgress?: (progress: number) => void): Promise<void> {
     const walls: { cell1: Cell; cell2: Cell }[] = [];
     const sets: Set<Cell>[] = [];
 
@@ -148,6 +161,7 @@ export class MazeGenerator {
         sets.splice(sets.indexOf(set1), 1);
         sets.splice(sets.indexOf(set2), 1);
         sets.push(newSet);
+        this.updateProgress(onProgress);
       }
 
       await this.delay();
@@ -219,10 +233,18 @@ export class MazeGenerator {
     }
   }
 
-  private async delay(): Promise<void> {
-    if (this.isTestMode) {
-      return Promise.resolve();
+  private updateProgress(onProgress?: (progress: number) => void): void {
+    if (onProgress) {
+      this.processedCells++;
+      const progress = Math.round((this.processedCells / this.totalCells) * 100);
+      onProgress(progress);
     }
-    return new Promise(resolve => setTimeout(resolve, 1000 / this.generationSpeed));
+  }
+
+  private async delay(): Promise<void> {
+    if (!this.isTestMode) {
+      const delayTime = Math.max(1, 100 / this.generationSpeed);
+      await new Promise(resolve => setTimeout(resolve, delayTime));
+    }
   }
 } 

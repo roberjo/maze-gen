@@ -1,40 +1,105 @@
 import { Cell } from '../core/Cell';
 
+export interface Theme {
+  background: string;
+  wall: string;
+  start: string;
+  end: string;
+  solution: string;
+  visited: string;
+  current: string;
+}
+
+export const defaultTheme: Theme = {
+  background: '#1a1a1a',
+  wall: '#3498db',
+  start: '#2ecc71',
+  end: '#e74c3c',
+  solution: '#f1c40f',
+  visited: '#34495e',
+  current: '#9b59b6'
+};
+
+export const lightTheme: Theme = {
+  background: '#ffffff',
+  wall: '#2c3e50',
+  start: '#27ae60',
+  end: '#c0392b',
+  solution: '#f39c12',
+  visited: '#95a5a6',
+  current: '#8e44ad'
+};
+
 export class MazeRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private cellSize: number;
   private wallThickness: number;
-  private colors: {
-    background: string;
-    wall: string;
-    start: string;
-    end: string;
-    solution: string;
-    visited: string;
-    current: string;
-  };
+  private colors: Theme;
+  private animationFrameId: number | null = null;
+  private animationSpeed: number = 50; // ms between frames
 
-  constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, theme: Theme = defaultTheme) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.cellSize = 20;
     this.wallThickness = 2;
-    this.colors = {
-      background: '#1a1a1a',
-      wall: '#3498db',
-      start: '#2ecc71',
-      end: '#e74c3c',
-      solution: '#f1c40f',
-      visited: '#34495e',
-      current: '#9b59b6'
-    };
+    this.colors = theme;
   }
 
-  public render(maze: Cell[][]): void {
+  public render(maze: Cell[][], animate: boolean = false): void {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
     this.calculateCellSize(maze.length);
     this.clearCanvas();
-    this.drawMaze(maze);
+    
+    if (animate) {
+      this.animateMaze(maze);
+    } else {
+      this.drawMaze(maze);
+    }
+  }
+
+  private animateMaze(maze: Cell[][]): void {
+    let currentRow = 0;
+    let currentCol = 0;
+    const totalCells = maze.length * maze[0].length;
+    let cellsDrawn = 0;
+
+    const drawNextCell = () => {
+      if (currentRow >= maze.length) {
+        this.animationFrameId = null;
+        return;
+      }
+
+      const cell = maze[currentRow][currentCol];
+      const offsetX = (this.canvas.width - maze[0].length * this.cellSize) / 2;
+      const offsetY = (this.canvas.height - maze.length * this.cellSize) / 2;
+      const cellX = offsetX + currentCol * this.cellSize;
+      const cellY = offsetY + currentRow * this.cellSize;
+
+      this.drawCell(cell, cellX, cellY);
+      cellsDrawn++;
+
+      currentCol++;
+      if (currentCol >= maze[0].length) {
+        currentCol = 0;
+        currentRow++;
+      }
+
+      if (cellsDrawn < totalCells) {
+        this.animationFrameId = requestAnimationFrame(() => {
+          setTimeout(drawNextCell, this.animationSpeed);
+        });
+      } else {
+        this.animationFrameId = null;
+      }
+    };
+
+    drawNextCell();
   }
 
   private calculateCellSize(mazeSize: number): void {
@@ -116,8 +181,19 @@ export class MazeRenderer {
     }
   }
 
-  public setColors(colors: Partial<typeof this.colors>): void {
-    this.colors = { ...this.colors, ...colors };
+  public setTheme(theme: Theme): void {
+    this.colors = theme;
+  }
+
+  public setAnimationSpeed(speed: number): void {
+    this.animationSpeed = Math.max(0, speed);
+  }
+
+  public stopAnimation(): void {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
   }
 
   public setCellSize(size: number): void {

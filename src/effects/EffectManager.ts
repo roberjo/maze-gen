@@ -17,6 +17,7 @@ export class EffectManager {
   private lightSources: { x: number; y: number; intensity: number }[] = [];
   private isLightingEnabled: boolean = true;
   private isParticlesEnabled: boolean = true;
+  private lightingCache: ImageData | null = null;
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -43,6 +44,18 @@ export class EffectManager {
   }
 
   private applyLighting(): void {
+    // Only recalculate lighting if the canvas size has changed
+    if (!this.lightingCache || 
+        this.lightingCache.width !== this.canvas.width || 
+        this.lightingCache.height !== this.canvas.height) {
+      this.calculateLighting();
+    }
+
+    // Apply cached lighting
+    this.ctx.putImageData(this.lightingCache!, 0, 0);
+  }
+
+  private calculateLighting(): void {
     const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     const data = imageData.data;
 
@@ -67,7 +80,7 @@ export class EffectManager {
       }
     }
 
-    this.ctx.putImageData(imageData, 0, 0);
+    this.lightingCache = imageData;
   }
 
   public addParticles(x: number, y: number, count: number = 5): void {
